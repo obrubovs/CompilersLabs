@@ -112,9 +112,34 @@ class RegexParser:
         return updLst
 
 
-# string = input()
+# string = 'aab*|c'
 # Tree = RegexParser().build_tree(string)
 
-# print(Tree)
-# print(Tree.root)
+# if Tree.root.leftNode is not None:
+# def tree_output(tree_root):
+#     tree = tree_root
+#     print(type(tree))
+#     if tree.rightChild is None:
+#         if tree.leftChild is None:
+#             print(tree.value)
+#         else:
+#             print(tree.leftChild.value)
+#     else:
+#         print(tree.rightvalue)
+
+        # print(tree_root.value)
+
+    #     if tree_root.rightChild is not None:
+    #         tree_output(tree_root.rightChild)
+    #
+    #     # tree_output(tree_root.leftChild)
+    # else:
+    #     tree_output(tree_root.leftChild)
+
+# tree_output(Tree.root)
+# print(type(Tree))
+# print(type(Tree.root.leftChild))
+    # print(Tree.root.value)
+    # print(Tree.root.leftChild.value)
+    # print(Tree.root.value)
 # print(Tree.root)
