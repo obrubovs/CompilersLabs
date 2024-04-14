@@ -20,6 +20,8 @@ class Node:
         nfa = NFA()
 
         state1, state2 = str(uuid.uuid4()), str(uuid.uuid4())
+
+        # заполнение таблицы переходов
         nfa.add(state1, state2, self.value)
 
         nfa.startState = state1
@@ -35,6 +37,7 @@ class OrNode(Node):
     def joinNFA(self, leftNFA, rightNFA):
         nfa = NFA()
 
+        # дополнение таблицы переходов
         nfa.stateDict.update(leftNFA.stateDict)
         nfa.stateDict.update(rightNFA.stateDict)
 
@@ -44,6 +47,7 @@ class OrNode(Node):
         nfa.startState = state1
         nfa.acceptingStates.append(state2)
 
+        # заполнение таблицы переходов
         nfa.add(state1, leftNFA.startState, Consts.epsSymbol)
         nfa.add(state1, rightNFA.startState, Consts.epsSymbol)
 
@@ -53,6 +57,7 @@ class OrNode(Node):
         for acceptState in rightNFA.acceptingStates:
             nfa.add(acceptState, state2, Consts.epsSymbol)
 
+        return nfa
 
 class AndNode(Node):
     def __init__(self, leftNode=None, rightNode=None):
@@ -61,10 +66,13 @@ class AndNode(Node):
     def joinNFA(self, leftNFA, rightNFA):
         nfa = NFA()
 
+        # дополнение таблицы переходов
         nfa.stateDict.update(leftNFA.stateDict)
         nfa.stateDict.update(rightNFA.stateDict)
 
         nfa.startState = leftNFA.startState
+
+        # заполнение таблицы переходов
 
         #eps переходы между односимвольными переходами
         for acceptState in leftNFA.acceptingStates:
@@ -73,6 +81,7 @@ class AndNode(Node):
         for acceptState in rightNFA.acceptingStates:
             nfa.acceptingStates.append(acceptState)
 
+        return nfa
 
 class StarNode(Node):
     def __init__(self, leftNode=None, rightNode=None):
@@ -82,6 +91,7 @@ class StarNode(Node):
     def joinNFA(self, leftNFA, rightNFA):
         nfa = NFA()
 
+        # дополнение таблицы переходов
         nfa.stateDict.update(leftNFA.stateDict)
 
         state1, state2 = str(uuid.uuid4()), str(uuid.uuid4())
@@ -89,6 +99,7 @@ class StarNode(Node):
         nfa.startState = state1
         nfa.acceptingStates.append(state2)
 
+        # заполнение таблицы переходов
         nfa.add(state1, state2, Consts.epsSymbol)
         nfa.add(state1, leftNFA.startState, Consts.epsSymbol)
 
@@ -97,3 +108,5 @@ class StarNode(Node):
 
         for acceptState in leftNFA.acceptingStates:
             nfa.add(acceptState, leftNFA.startState, Consts.epsSymbol)
+
+        return nfa

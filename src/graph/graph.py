@@ -1,16 +1,6 @@
-from RegexParser import RegexParser
-from automaton import NFA
-from graph.graph import graph_png
+import pydot
 
-string = 'aab*|c'
-Tree = RegexParser().build_tree(string)
-nfa = Tree.root.createNFA()
-
-
-print(nfa.stateDict)
-
-
-def dict2dot(dictionary):
+def dict_to_graphlist(dictionary):
 
     graph = []
 
@@ -37,7 +27,12 @@ def dict2dot(dictionary):
 
     return graph
 
+def list_to_dotfile(list):
+    with open("file.dot", "w") as output:
+        for row in list:
+            output.write(str(row) + '\n')
 
-
-graph = dict2dot(nfa.stateDict)
-
+def graph_png(path, outputfile):
+    (graph,) = pydot.graph_from_dot_file(path)
+    outputfile_name = outputfile + '.png'
+    graph.write_png(outputfile_name)
