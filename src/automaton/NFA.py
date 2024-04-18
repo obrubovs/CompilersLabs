@@ -17,6 +17,16 @@ class NFA:
         else:
             self.stateDict[startState][transition].append(finishState)
 
+    def makeAlphabet(self):
+        Alphabet = set()
+        for stsrt, dict in self.stateDict.items():
+            for transmit, list in dict.items():
+                if transmit not in Alphabet:
+                    Alphabet.add(transmit)
+
+        return Alphabet
+
+
 
 
 

@@ -1,5 +1,5 @@
 from RegexParser import RegexParser
-from automaton import NFA
+from automaton import DFA
 from graph.graph import graph_png
 
 string = 'aab*|c'
@@ -38,6 +38,8 @@ def dict2dot(dictionary):
     return graph
 
 
+graph_png(nfa.stateDict, 'graph')
 
-graph = dict2dot(nfa.stateDict)
+eps = DFA.DFA.eps_clusure(state='95787397-acc1-4b7e-91a3-ea67ba2ca79f', nfa=nfa)
+print(eps)
 

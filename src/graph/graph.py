@@ -32,7 +32,9 @@ def list_to_dotfile(list):
         for row in list:
             output.write(str(row) + '\n')
 
-def graph_png(path, outputfile):
-    (graph,) = pydot.graph_from_dot_file(path)
-    outputfile_name = outputfile + '.png'
+def graph_png(dict, output_filename):
+    graphlist = dict_to_graphlist(dict)
+    list_to_dotfile(graphlist)
+    (graph,) = pydot.graph_from_dot_file('file.dot')
+    outputfile_name = output_filename + '.png'
     graph.write_png(outputfile_name)
