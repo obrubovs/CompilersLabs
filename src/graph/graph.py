@@ -4,7 +4,7 @@ def dict_to_graphlist(dictionary):
 
     graph = []
 
-    graph.append('graph A {')
+    graph.append('digraph A {')
 
     nodes = {}
     i = 0
