@@ -2,6 +2,7 @@ import uuid
 
 from constants.constants import Consts
 from automaton.NFA import NFA
+
 class Node:
     value: str
     leftChild = None

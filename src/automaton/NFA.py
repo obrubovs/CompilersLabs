@@ -1,4 +1,5 @@
 from typing import Dict, List
+# from RegexParser import RegexParser
 class NFA:
     startState: str
     acceptingStates: [str]
@@ -25,6 +26,8 @@ class NFA:
                     Alphabet.add(transmit)
 
         return Alphabet
+
+
 
 
 
