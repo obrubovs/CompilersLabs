@@ -1,0 +1,47 @@
+{
+  "grammar": {
+    "-name": "G0",
+    "terminalsymbols":
+    [
+      "a",
+      "b"
+    ],
+    "nonterminalsymbols":
+    [
+      "A",
+      "S"
+    ],
+    "productions":
+    [
+      {
+        "lhs": "A",
+        "rhs":
+        [
+          [
+            "S",
+            "a"
+          ],
+
+          [
+            "A",
+            "a"
+          ]
+        ]
+
+      },
+
+      {
+        "lhs": "S",
+        "rhs":
+        [
+          [
+            "A",
+            "b"
+          ]
+        ]
+      }
+
+    ],
+    "startsymbol": "A"
+  }
+}
