@@ -185,8 +185,6 @@ def immediate_recursion_eliminator(grammar_dict):
 
 def direct_left_recursion_eliminator(rule):
 
-
-
     new_nonterminals = set()
     new_nonterminals.add(rule['lhs'])
 
@@ -243,6 +241,59 @@ def direct_left_recursion_eliminator(rule):
     return new_nonterminals, new_rules
 
 
+def left_factorisation(grammar_dict):
+    rules = grammar_dict['rules']
+    new_rules = list()
+    new_nonterminals = set()
+    for rule in rules:
+        nonterm = rule['lhs']
+        productions = rule['rhs']
+        commonTerminal = str()
+        for i in range(0, len(productions[0])): # итерация по первой продукции
+            for j in range(1, len(productions)): # итерация по всем продукциям нетерминала
+                if productions[0][:i+1] == productions[j][:i+1]:
+                    commonTerminal = productions[0][:i+1]
+
+        if commonTerminal:
+            # добавление нового нетерминала
+            nt_index = 1
+            new_nonterm = nonterm + str(nt_index)
+            while new_nonterm in grammar_dict['nonterminals']:
+                nt_index += 1
+                new_nonterm = nonterm + str(nt_index)
+            new_nonterminals.add(new_nonterm)
+
+            # создание новых правил
+            alpha = list()
+            beta = list()
+
+            commonTerminalProduction = commonTerminal[:]
+            commonTerminalProduction.append(new_nonterm)
+            alpha.append(commonTerminalProduction)
+
+            for i in productions:
+                if i[:len(commonTerminal)] == commonTerminal:
+                    b = i[len(commonTerminal):]
+                    if len(b) == 0:
+                        beta.append('eps')
+                    else:
+                        beta.append(b)
+                else:
+                    alpha.append(i)
+
+
+            new_rules.append({'lhs': nonterm, 'rhs': alpha})
+            new_rules.append({'lhs': new_nonterm, 'rhs': beta})
+
+
+    new_grammar = dict()
+    new_grammar['nonterminals'] = set(new_nonterminals)
+    new_grammar['terminals'] = grammar['terminals']
+    new_grammar['rules'] = new_rules
+    new_grammar['start'] = grammar['start']
+    return new_grammar
+
+
 
 def print_grammar(grammar_dict):
     print('~~~ Terminals ~~~')
@@ -267,9 +318,11 @@ def print_grammar(grammar_dict):
             right += ' '.join(prod) + ' | '
         print(f'{left} -> {right[:-2]}')
 
-grammar = grammar_json_parser('test.json')
+grammar = grammar_json_parser('test5.json')
 print_grammar(grammar)
 # grammar = direct_left_recursion_eliminator(grammar)
 print_grammar(grammar)
 grammar = immediate_recursion_eliminator(grammar)
+
+grammar = left_factorisation_elimination(grammar)
 print_grammar(grammar)

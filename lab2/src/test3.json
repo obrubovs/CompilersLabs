@@ -1,6 +1,5 @@
 {
   "grammar": {
-    "-name": "G0",
     "terminalsymbols":
     [
       "a",
