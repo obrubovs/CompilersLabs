@@ -6,8 +6,11 @@ def grammar_json_parser(file_from):
 
     data = json.load(open(file_from, 'r'))
 
+    startsymbol = data['grammar']['startsymbol']
     nonterminals = data['grammar']['nonterminalsymbols']
-    nonterminals = set(nonterminals)
+    nonterminals = list(nonterminals)
+    start_index = nonterminals.index(startsymbol)
+    nonterminals.insert(0, nonterminals.pop(start_index))
 
 
     terminals = data['grammar']['terminalsymbols']
@@ -18,12 +21,13 @@ def grammar_json_parser(file_from):
     grammar['nonterminals'] = nonterminals
     grammar['terminals'] = terminals
     grammar['rules'] = production_dicts
-    grammar['start'] = data['grammar']['startsymbol']
+    grammar['start'] = startsymbol
 
     return grammar
 
 def immediate_recursion_eliminator(grammar_dict):
-    nonterminals = list(grammar_dict['nonterminals'])
+    nonterminals = grammar_dict['nonterminals']
+    # nonterminals = list(grammar_dict['nonterminals'])
     terminals = grammar_dict['terminals']
     rules = grammar_dict['rules']
     start = grammar_dict['start']
@@ -33,28 +37,42 @@ def immediate_recursion_eliminator(grammar_dict):
         nt_i = nonterminals[i]
         i_new_rule = dict()
 
+        nt_i_productions = list(filter(lambda r: r['lhs'] == nt_i, rules))
+        if nt_i_productions:
+            nt_i_productions = nt_i_productions[0]
+            nt_i_productions = nt_i_productions['rhs']
+        else:
+            break
+
+        nt_i_new_productions = list()
+
         for j in range(i):
             nt_j = nonterminals[j]
 
-            for rule in rules:
-                # проавила i-го нетерминала
-                if rule['lhs'] == nt_i:
-                    nt_i_rules = rule['rhs']
-                # проавила j-го нетерминала
-                elif rule['lhs'] == nt_j:
-                    nt_j_rules = rule['rhs']
+
+            nt_j_productions = list(filter(lambda r: r['lhs'] == nt_j, rules))
+            nt_j_productions = nt_j_productions[0]
+            nt_j_productions = nt_j_productions['rhs']
+
+            # for rule in rules:
+            #     # проавила i-го нетерминала
+            #     if rule['lhs'] == nt_i:
+            #         nt_i_productions = rule['rhs']
+            #     # проавила j-го нетерминала
+            #     elif rule['lhs'] == nt_j:
+            #         nt_j_productions = rule['rhs']
 
 
-            nt_i_new_productions = list()
 
-            for production_i in nt_i_rules:
+
+            for production_i in nt_i_productions:
                 nt_i_new_prod = list()
 
                 # если первый символ текущей продукции nt_i равен nt_j
                 if production_i[0] == nt_j:
                     nt_j_new_prod = list()
 
-                    for production_j in nt_j_rules:
+                    for production_j in nt_j_productions:
                         # если последний символ продукции второго терминала nt_j = eps
 
                         if production_j[-1] == 'eps':
@@ -63,130 +81,48 @@ def immediate_recursion_eliminator(grammar_dict):
                         nt_i_new_productions.append(production_j + production_i[1:])
                         print(f'{production_j + production_i[1:]} added to new production')
 
-
-                    # итерация по правилам j-го нетерминала
-                    # for production_j in nt_j_rules:
-                    #
-                    #     # если последний символ продукции второго терминала nt_j = eps
-                    #     if production_j[-1] == 'eps':
-                    #         production_j = production_j[:-1]
-                    #
-                    #     # добавление правила nt_j и остаток правила nt_i
-                    #     nt_i_new_productions.append(production_j + production_i[1:])
-                    #     print(f'{production_j + production_i[1:]} added to nt_i production')
-                else:
+                elif production_i not in nt_i_new_productions:
 
                     nt_i_new_productions.append(production_i)
                     print(f'{production_i} added to new production')
 
                 # обновление грамматики
-            i_new_rule['lhs'] = nt_i
-            i_new_rule['rhs'] = nt_i_new_productions
-            print(i_new_rule)
+        i_new_rule['lhs'] = nt_i
+        i_new_rule['rhs'] = nt_i_new_productions
+        print(i_new_rule)
 
-            upd_nonterms, i_rule = direct_left_recursion_eliminator(i_new_rule)
 
-            nonterminals += list(upd_nonterms)
+        # nonterminals += list(upd_nonterms)
 
-            new_rules.extend(i_rule)
 
         if i == 0:
             for k in rules:
                 if k['lhs'] == nt_i:
-                    new_rules.append(k)
+                    i_new_rule = k
 
+        upd_nonterms, i_rule = direct_left_recursion_eliminator(i_new_rule)
+
+        for nt in upd_nonterms:
+            if nt not in nonterminals:
+                nonterminals.append(nt)
+
+        new_rules.extend(i_rule)
+
+    nonterminals = list(set(nonterminals))
+    set_element_index(nonterminals, start, 0)
 
     new_grammar = dict()
-    new_grammar['nonterminals'] = set(nonterminals)
+    new_grammar['nonterminals'] = nonterminals
     new_grammar['terminals'] = terminals
     new_grammar['rules'] = new_rules
     new_grammar['start'] = start
 
     return new_grammar
 
-# def direct_left_recursion_eliminator(grammar_dict):
-#
-#     nonterminals = grammar_dict['nonterminals']
-#     terminals = grammar_dict['terminals']
-#     rules = grammar_dict['rules']
-#     start = grammar_dict['start']
-#     new_rules = list()
-#
-#
-#     for rule in rules:
-#         alpha = []
-#         beta = []
-#
-#         for production in rule['rhs']:
-#             if production[0] == rule['lhs'] and len(production) >= 1:
-#
-#                 # добавление нового нетерминального символа
-#                 new_nonterm = rule['lhs'] + '1'
-#                 nonterminals.add(new_nonterm)
-#
-#                 alpha.append(production[1:])
-#
-#                 new_rule = dict()
-#                 new_rule['lhs'] = new_nonterm
-#
-#             else:
-#                 beta.append(production)
-#
-#         if alpha:
-#             alpha_rule = dict()
-#             beta_rule = dict()
-#             new_nonterm = rule['lhs']+'1'
-#             alpha_rule['lhs'] = new_nonterm
-#             alpha_rule['rhs'] = list()
-#             for a in alpha:
-#                 a.append(new_nonterm)
-#                 alpha_rule['rhs'].append(a)
-#             alpha_rule['rhs'].append(['eps'])
-#
-#             new_rules.append(alpha_rule)
-#
-#             beta_rule['lhs'] = rule['lhs']
-#             beta_rule['rhs'] = list()
-#             for b in beta:
-#                 b.append(new_nonterm)
-#                 beta_rule['rhs'].append(b)
-#
-#             new_rules.append(beta_rule)
-#
-#         else:
-#             new_rules.append(rule)
-#
-#
-#
-#
-#             # for symbol in production:
-#             #
-#             #     if (rule['lhs'] == symbol['-name']) and (production.index(symbol) == 0):
-#             #         new_rule = dict()
-#             #         new_rhs = list()
-#             #
-#             #
-#             #         for i in rule['rhs'][1:]:
-#             #             new_rhs.append(i)
-#             #
-#             #
-#             #         new_rule['lhs'] = new_nonterm
-#             #         new_rule['rhs'] = new_rhs
-#             #         new_rules.append(new_rule)
-#             #         break
-#
-#     new_grammar = dict()
-#     new_grammar['nonterminals'] = nonterminals
-#     new_grammar['terminals'] = terminals
-#     new_grammar['rules'] = new_rules
-#     new_grammar['start'] = start
-#
-#     return new_grammar
-
 def direct_left_recursion_eliminator(rule):
 
-    new_nonterminals = set()
-    new_nonterminals.add(rule['lhs'])
+    new_nonterminals = list()
+    new_nonterminals.append(rule['lhs'])
 
     new_rules = list()
 
@@ -199,9 +135,8 @@ def direct_left_recursion_eliminator(rule):
             # добавление нового нетерминального символа
             new_nonterm = rule['lhs'] + '1'
 
-            if new_nonterm in new_nonterminals:
-                break
-            new_nonterminals.add(new_nonterm)
+            if new_nonterm not in new_nonterminals:
+                new_nonterminals.append(new_nonterm)
 
             alpha.append(production[1:])
 
@@ -226,12 +161,15 @@ def direct_left_recursion_eliminator(rule):
 
         beta_rule['lhs'] = rule['lhs']
         beta_rule['rhs'] = list()
-        for b in beta:
-            b.append(new_nonterm)
-            if b[0] == 'eps':
-                b = b[1:]
-            beta_rule['rhs'].append(b)
-
+        if beta:
+            for b in beta:
+                b.append(new_nonterm)
+                if b[0] == 'eps':
+                    b = b[1:]
+                beta_rule['rhs'].append(b)
+        else:
+            b = new_nonterm
+            beta_rule['rhs'].append([new_nonterm])
         new_rules.append(beta_rule)
 
     else:
@@ -244,15 +182,17 @@ def direct_left_recursion_eliminator(rule):
 def left_factorisation(grammar_dict):
     rules = grammar_dict['rules']
     new_rules = list()
-    new_nonterminals = set()
+    new_nonterminals = list()
     for rule in rules:
         nonterm = rule['lhs']
         productions = rule['rhs']
         commonTerminal = str()
-        for i in range(0, len(productions[0])): # итерация по первой продукции
-            for j in range(1, len(productions)): # итерация по всем продукциям нетерминала
-                if productions[0][:i+1] == productions[j][:i+1]:
-                    commonTerminal = productions[0][:i+1]
+
+        if productions:
+            for i in range(0, len(productions[0])): # итерация по первой продукции
+                for j in range(1, len(productions)): # итерация по всем продукциям нетерминала
+                    if productions[0][:i+1] == productions[j][:i+1]:
+                        commonTerminal = productions[0][:i+1]
 
         if commonTerminal:
             # добавление нового нетерминала
@@ -261,7 +201,7 @@ def left_factorisation(grammar_dict):
             while new_nonterm in grammar_dict['nonterminals']:
                 nt_index += 1
                 new_nonterm = nonterm + str(nt_index)
-            new_nonterminals.add(new_nonterm)
+            new_nonterminals.append(new_nonterm)
 
             # создание новых правил
             alpha = list()
@@ -275,7 +215,7 @@ def left_factorisation(grammar_dict):
                 if i[:len(commonTerminal)] == commonTerminal:
                     b = i[len(commonTerminal):]
                     if len(b) == 0:
-                        beta.append('eps')
+                        beta.append(['eps'])
                     else:
                         beta.append(b)
                 else:
@@ -285,12 +225,17 @@ def left_factorisation(grammar_dict):
             new_rules.append({'lhs': nonterm, 'rhs': alpha})
             new_rules.append({'lhs': new_nonterm, 'rhs': beta})
 
+        else:
+            new_rules.append(rule)
+
+
+    upd_nonterminals = grammar_dict['nonterminals'] + new_nonterminals
 
     new_grammar = dict()
-    new_grammar['nonterminals'] = set(new_nonterminals)
-    new_grammar['terminals'] = grammar['terminals']
+    new_grammar['nonterminals'] = upd_nonterminals
+    new_grammar['terminals'] = grammar_dict['terminals']
     new_grammar['rules'] = new_rules
-    new_grammar['start'] = grammar['start']
+    new_grammar['start'] = grammar_dict['start']
     return new_grammar
 
 
@@ -318,11 +263,73 @@ def print_grammar(grammar_dict):
             right += ' '.join(prod) + ' | '
         print(f'{left} -> {right[:-2]}')
 
-grammar = grammar_json_parser('test5.json')
-print_grammar(grammar)
-# grammar = direct_left_recursion_eliminator(grammar)
-print_grammar(grammar)
-grammar = immediate_recursion_eliminator(grammar)
+def set_element_index(list: list, element, index:int):
+    element_index = list.index(element)
+    list.insert(index, list.pop(element_index))
 
-grammar = left_factorisation_elimination(grammar)
+
+def unreachable_symbols_elimination(grammar: dict):
+    start = grammar['start']
+    rules = grammar['rules']
+    nonterminals = grammar['nonterminals']
+    reachable_symbols = set()
+    reachable_nt = list()
+    reachable_nt.append(start)
+
+    for nt in reachable_nt:
+        new_reachable_symbols = set()
+        rule = list(filter(lambda r: r['lhs'] == nt, rules))
+        rule = rule[0]
+
+        for production in rule['rhs']:
+            for symbol in production:
+                if symbol in nonterminals and symbol not in reachable_nt:
+                    reachable_nt.append(symbol)
+                new_reachable_symbols.add(symbol)
+
+        if reachable_symbols == (reachable_symbols.update(new_reachable_symbols)):
+            break
+        else:
+            reachable_symbols.update(new_reachable_symbols)
+
+    new_rules = list()
+    for nt in reachable_nt:
+        rule = list(filter(lambda r: r['lhs'] == nt, rules))
+        rule = rule[0]
+        new_rule = list()
+        for production in rule['rhs']:
+            new_production = list()
+            for symbol in production:
+                if symbol in reachable_symbols:
+                    new_production.append(symbol)
+                else:
+                    break
+            new_rule.append(new_production)
+        new_rules.append({'lhs': nt, 'rhs': new_rule})
+
+    new_terminals = list(reachable_symbols - set(reachable_nt))
+    set_element_index(new_terminals, start, 0)
+
+    new_grammar = dict()
+    new_grammar['nonterminals'] = reachable_nt
+    new_grammar['terminals'] = start
+    new_grammar['rules'] = new_rules
+    new_grammar['start'] = grammar['start']
+    return new_grammar
+
+grammar = grammar_json_parser('test6.json')
+
+print("~~~ Изначальная грамматика ~~~")
+print_grammar(grammar)
+
+grammar = immediate_recursion_eliminator(grammar)
+print("~~~ Избавление от левой рекурсии ~~~")
+print_grammar(grammar)
+
+grammar = left_factorisation(grammar)
+print("~~~ Левая факторизация ~~~")
+print_grammar(grammar)
+
+# grammar = unreachable_symbols_elimination(grammar)
+print("~~~ Избавление от недосттижимых символов ~~~")
 print_grammar(grammar)

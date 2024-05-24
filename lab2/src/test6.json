@@ -1,0 +1,74 @@
+{
+  "grammar": {
+    "terminalsymbols":
+    [
+      "a",
+      "b"
+    ],
+    "nonterminalsymbols":
+    [
+      "S",
+      "A",
+      "B"
+    ],
+    "productions":
+    [
+      {
+        "lhs": "S",
+        "rhs":
+        [
+          [
+            "a"
+          ],
+          [
+            "A"
+          ]
+        ]
+
+      },
+
+      {
+        "lhs": "A",
+        "rhs":
+        [
+          [
+            "b"
+          ],
+          [
+            "B",
+            "a"
+
+          ]
+        ]
+      },
+      {
+        "lhs": "B",
+        "rhs":
+        [
+          [
+            "b"
+          ],
+          [
+            "b",
+            "A"
+          ]
+        ]
+      },
+      {
+        "lhs": "C",
+        "rhs":
+        [
+          [
+            "b"
+          ],
+          [
+            "b",
+            "C"
+          ]
+        ]
+      }
+
+    ],
+    "startsymbol": "S"
+  }
+}
