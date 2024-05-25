@@ -27,7 +27,6 @@ def grammar_json_parser(file_from):
 
 def immediate_recursion_eliminator(grammar_dict):
     nonterminals = grammar_dict['nonterminals']
-    # nonterminals = list(grammar_dict['nonterminals'])
     terminals = grammar_dict['terminals']
     rules = grammar_dict['rules']
     start = grammar_dict['start']
@@ -54,16 +53,6 @@ def immediate_recursion_eliminator(grammar_dict):
             nt_j_productions = nt_j_productions[0]
             nt_j_productions = nt_j_productions['rhs']
 
-            # for rule in rules:
-            #     # проавила i-го нетерминала
-            #     if rule['lhs'] == nt_i:
-            #         nt_i_productions = rule['rhs']
-            #     # проавила j-го нетерминала
-            #     elif rule['lhs'] == nt_j:
-            #         nt_j_productions = rule['rhs']
-
-
-
 
             for production_i in nt_i_productions:
                 nt_i_new_prod = list()
@@ -79,17 +68,14 @@ def immediate_recursion_eliminator(grammar_dict):
                             production_j = production_j[:-1]
 
                         nt_i_new_productions.append(production_j + production_i[1:])
-                        print(f'{production_j + production_i[1:]} added to new production')
 
                 elif production_i not in nt_i_new_productions:
 
                     nt_i_new_productions.append(production_i)
-                    print(f'{production_i} added to new production')
 
                 # обновление грамматики
         i_new_rule['lhs'] = nt_i
         i_new_rule['rhs'] = nt_i_new_productions
-        print(i_new_rule)
 
 
         # nonterminals += list(upd_nonterms)
@@ -308,28 +294,35 @@ def unreachable_symbols_elimination(grammar: dict):
         new_rules.append({'lhs': nt, 'rhs': new_rule})
 
     new_terminals = list(reachable_symbols - set(reachable_nt))
-    set_element_index(new_terminals, start, 0)
+    set_element_index(reachable_nt, start, 0)
 
     new_grammar = dict()
     new_grammar['nonterminals'] = reachable_nt
-    new_grammar['terminals'] = start
+    new_grammar['terminals'] = new_terminals
     new_grammar['rules'] = new_rules
     new_grammar['start'] = grammar['start']
     return new_grammar
 
-grammar = grammar_json_parser('test6.json')
+if __name__ == '__main__':
 
-print("~~~ Изначальная грамматика ~~~")
-print_grammar(grammar)
+    grammar = grammar_json_parser('test.json')
+    # grammar = grammar_json_parser('test1.json')
+    # grammar = grammar_json_parser('test3.json')
+    # grammar = grammar_json_parser('test4.json')
+    # grammar = grammar_json_parser('test5.json')
+    grammar = grammar_json_parser('test6.json')
 
-grammar = immediate_recursion_eliminator(grammar)
-print("~~~ Избавление от левой рекурсии ~~~")
-print_grammar(grammar)
+    print("~~~ Изначальная грамматика ~~~")
+    print_grammar(grammar)
 
-grammar = left_factorisation(grammar)
-print("~~~ Левая факторизация ~~~")
-print_grammar(grammar)
+    grammar = immediate_recursion_eliminator(grammar)
+    print("~~~ Избавление от левой рекурсии ~~~")
+    print_grammar(grammar)
 
-# grammar = unreachable_symbols_elimination(grammar)
-print("~~~ Избавление от недосттижимых символов ~~~")
-print_grammar(grammar)
+    grammar = left_factorisation(grammar)
+    print("~~~ Левая факторизация ~~~")
+    print_grammar(grammar)
+
+    grammar = unreachable_symbols_elimination(grammar)
+    print("~~~ Избавление от недостижимых символов ~~~")
+    print_grammar(grammar)
