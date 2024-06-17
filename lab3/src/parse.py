@@ -294,11 +294,14 @@ def parse_tail(grammar: CFG, in_str: str) -> ParsedNode:
             raise ParseError(nterm, [';'])
         targets.append(';')
         in_str = in_str[1:]
-        e = parse_expr(grammar, in_str)
-        targets.append(e)
-        in_str = in_str[e.parsed_len:]
-        t = parse_tail(grammar, in_str)
-        targets.append(t)
+        try:
+            e = parse_expr(grammar, in_str)
+            targets.append(e)
+            in_str = in_str[e.parsed_len:]
+            t = parse_tail(grammar, in_str)
+            targets.append(t)
+        except:
+            pass
         return ParsedNode(nterm, targets)
     except ParseError:
         return ParsedNode(nterm, [])

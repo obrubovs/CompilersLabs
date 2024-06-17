@@ -35,7 +35,7 @@ class TestLL1Anasyzer(unittest.TestCase):
 
         test_data = [
             (
-                '{I+I}',
+                '{I+I;}',
                 ParsedNode(Nonterminal('PROG'), [
                     ParsedNode(Nonterminal('BLOCK'), [
                         '{',
@@ -51,7 +51,9 @@ class TestLL1Anasyzer(unittest.TestCase):
                                     ])
                                 ])
                             ]),
-                            ParsedNode(Nonterminal('TAIL'), [])
+                            ParsedNode(Nonterminal('TAIL'), [
+                                ';'
+                            ])
                         ]),
                         '}'
                     ])
@@ -86,7 +88,7 @@ class TestLL1Anasyzer(unittest.TestCase):
             (
                 '{'
                 '   C := I;'
-                '   C := C + C - C <> I'
+                '   C := C + C - C <> I;'
                 '}',
                 ParsedNode(Nonterminal('PROG'), [
                     ParsedNode(Nonterminal('BLOCK'), [
@@ -131,7 +133,9 @@ class TestLL1Anasyzer(unittest.TestCase):
                                         ]),
                                     ])
                                 ]),
-                                ParsedNode(Nonterminal('TAIL'), [])
+                                ParsedNode(Nonterminal('TAIL'), [
+                                    ';'
+                                ])
                             ]),
                         ]),
                         '}'
@@ -141,7 +145,7 @@ class TestLL1Anasyzer(unittest.TestCase):
             (
                 '{'
                 '   C := I;'
-                '   C := - C + C - C * I div C <> I'
+                '   C := - C + C - C * I div C <> I;'
                 '}',
                 ParsedNode(Nonterminal('PROG'), [
                     ParsedNode(Nonterminal('BLOCK'), [
@@ -197,7 +201,9 @@ class TestLL1Anasyzer(unittest.TestCase):
                                         ]),
                                     ])
                                 ]),
-                                ParsedNode(Nonterminal('TAIL'), [])
+                                ParsedNode(Nonterminal('TAIL'), [
+                                    ';'
+                                ])
                             ]),
                         ]),
                         '}'
