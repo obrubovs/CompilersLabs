@@ -48,17 +48,21 @@ class DotGraph:
         for k, v in working_dict.items():
             self.dot.node(str(parent_id), k)
 
-            self.iterator += 1
-            child_id = self.iterator
-
-            self.dot.edge(str(parent_id), str(child_id))
-            parent_id = child_id
+            # self.iterator += 1
+            # child_id = self.iterator
+            #
+            # self.dot.edge(str(parent_id), str(child_id))
 
             for e in v:
 
                 if isinstance(e, dict):
-                    self.dict_to_dot(e, parent_id)
                     self.iterator += 1
+                    child_id = self.iterator
+                    self.dot.edge(str(parent_id), str(child_id))
+
+                    # parent_id = child_id
+                    self.dict_to_dot(e, child_id)
+                    # self.iterator += 1
                 else:
                     self.iterator += 1
                     child_id = self.iterator
